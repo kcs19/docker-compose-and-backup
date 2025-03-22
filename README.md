@@ -16,7 +16,8 @@
 
 
 ## 🏗️ 아키텍처
-![image](https://github.com/user-attachments/assets/8215383f-7901-4adc-b832-baf7dc66624a)
+![image](https://github.com/user-attachments/assets/4bb2dfc5-a923-404f-b915-ebebd922d1d5)
+
 
 <br>
 
@@ -69,7 +70,7 @@ services:
     container_name: springbootapp1
     build:
       context: .
-      dockerfile: ./app2/Dockerfile
+      dockerfile: ./app1/Dockerfile
     ports:
       - "${APP1_PORT}:${APP1_PORT}"
     environment:
@@ -112,8 +113,8 @@ networks:
 
 ### 3. 도커파일
 
-- **eclipse-temurin:17-jre-alpine** 버전을 사용하여 경량화된 이미지로 설정합니다.
-- **HEALTHCHECK** 설정은 추후 모니터링 환경이 구축되면 필요 없을 수 있습니다.
+- **eclipse-temurin:17-jre-alpine** 버전을 사용하여 경량화된 이미지로 설정
+- **HEALTHCHECK** 설정은 추후 모니터링 환경이 구축되면 제거
 
 ```bash
 # Base Image 설정
@@ -142,7 +143,7 @@ ENTRYPOINT ["java", "-jar", "app.jar"]
 
 ### 4. setup.sh
 
-- 도커 컴포즈를 실행하고 백업하는 크론탭을 지정합니다.
+- 도커 컴포즈를 실행하고 백업하는 크론탭을 지정
 - 백업을 1분마다 실행하도록 설정 (서비스에 따라 주기를 조절 가능)
 
 ```bash
@@ -169,8 +170,7 @@ echo "Crontab updated successfully."
 <br>
 
 ### 5. backupData.sh
-mysqldump를 사용하여 MySQL에 접근하고 백업을 수행하여 데이터를 저장합니다.
-DB 백업 (MySQL 컨테이너에서 mysqldump 실행)
+mysqldump를 사용하여 MySQL에 접근하고 백업을 수행하여 데이터를 저장
 
 
 ```
