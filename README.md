@@ -1,21 +1,47 @@
-# 🎯목표
-- **MySQL** 하나를 공유하는 두 개의 **Spring Boot 프로젝트**를 실행합니다.
-- 도커 컴포즈를 실행하고 백업하는 환경을 구성합니다.
-- 빌드 시, 도커 컴포즈에서 실행하느냐, 도커 파일에서 실행하느냐를 중점으로 코드 작성합니다.
+# 🐋docker-compose-and-backup
+- 하나의 데이터베이스를 공유하는 두개의 어플리케이션을 실행하는 docker-compose를 구성하고
+- shell 스크립트를 이용해 docker-compose를 실행 후 crontab을 활용해 자동 백업하는 환경 구성하는 프로젝트
 
----
+<br>
 
-# 🏗️아키텍처
+
+## 🎯목표
+- 도커 네트워크 지식 확립
+- 도커 컴포즈 내의 어플리케이션 실행 순서 고려
+- shell 스크립트, crontab 활용
+- 빌드 시, 도커 컴포즈, 도커 파일 중 어디서 실행하는 것이 유리한지 고려하여 코드 작성
+
+
+<br>
+
+
+## 🏗️ 아키텍처
+![image](https://github.com/user-attachments/assets/8215383f-7901-4adc-b832-baf7dc66624a)
+
+<br>
+
+## 📁 파일 구성
 ![image](https://github.com/user-attachments/assets/5692cfd9-7f84-4a02-aa52-8b936bb5b971)
 
+<br>
 
+### 1. 스프링 mysql 연결url을 DNS로 설정
+- 동일한 도커 네트워크에서 DNS를 통해 연결 가능
+- ※Default bridge 네트워크에서는 DNS 사용 불가함
 
-### 1. 도커 컴포즈 파일
+```
+# MySQL 연결 설정
+spring.datasource.url=jdbc:mysql://mysqldb:3306/${DB_NAME}?useSSL=false&allowPublicKeyRetrieval=true
+```
 
-- **MySQL** 하나를 공유하는 두 개의 **Spring Boot 프로젝트**를 실행합니다.
-- **브릿지 네트워크**로 연결되어, 컨테이너 간의 통신만 허용되며 외부와의 연결은 차단됩니다.
-- **MySQL** 서비스가 정상적으로 동작하지 않으면, 다른 서비스(`app`, `app2`)는 실행되지 않도록 설정하여 의존성을 관리합니다.
-- 중요한 설정 값들은 **환경 변수**를 통해 관리합니다.
+<br>
+
+### 2. 도커 컴포즈 파일
+- **MySQL** 하나를 공유하는 두 개의 **Spring Boot 프로젝트**를 실행
+- **브릿지 네트워크**로 연결
+- **MySQL** 서비스가 정상 동작 확인 후, `app`, `app2` 실행
+- 중요한 설정 값들은 **환경 변수**를 통해 관리
+- 포트 설정 주의
 
 ```yaml
 version: "1.0"
@@ -82,8 +108,9 @@ networks:
     driver: bridge
 ```
 
+<br>
 
-### 2. 도커파일
+### 3. 도커파일
 
 - **eclipse-temurin:17-jre-alpine** 버전을 사용하여 경량화된 이미지로 설정합니다.
 - **HEALTHCHECK** 설정은 추후 모니터링 환경이 구축되면 필요 없을 수 있습니다.
@@ -111,8 +138,9 @@ HEALTHCHECK --interval=10s --timeout=30s --retries=3 CMD curl -f http://localhos
 ENTRYPOINT ["java", "-jar", "app.jar"]
 ```
 
+<br>
 
-### 3. setup.sh
+### 4. setup.sh
 
 - 도커 컴포즈를 실행하고 백업하는 크론탭을 지정합니다.
 - 백업을 1분마다 실행하도록 설정 (서비스에 따라 주기를 조절 가능)
@@ -138,7 +166,9 @@ echo "Updating Crontab..."
 echo "Crontab updated successfully."
 ```
 
-### 4. backupData.sh
+<br>
+
+### 5. backupData.sh
 mysqldump를 사용하여 MySQL에 접근하고 백업을 수행하여 데이터를 저장합니다.
 DB 백업 (MySQL 컨테이너에서 mysqldump 실행)
 
